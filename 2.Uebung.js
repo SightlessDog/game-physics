@@ -8,7 +8,6 @@ function setup() {
   /* here are program-essentials to put */
   createCanvas(windowWidth, windowHeight);
   newButton = createButton("NEW");
-  newButton.position(canvasWidth - 200, canvasHeight * 0.9);
   newButton.style("background-color", "#6BE3F8");
   newButton.style("width", "200px");
   newButton.style("height", "70px");
@@ -17,14 +16,13 @@ function setup() {
   newButton.style("letter-spacing", "1px");
   newButton.style("font-weight", "bold");
   resetButton = createButton("RESET");
-  resetButton.position(0, canvasHeight * 0.9);
   resetButton.style("background-color", "#ED654A");
-  resetButton.style("width", "200px");
   resetButton.style("height", "70px");
   resetButton.style("border", "none");
   resetButton.style("cursor", "pointer");
   resetButton.style("letter-spacing", "1px");
   resetButton.style("font-weight", "bold");
+  resetButton.style("width", "200px");
 }
 
 const baseline = 5;
@@ -51,10 +49,13 @@ const corners = [
 
 const stickPosition = { x: -0.175 * 28.9, y: 0, length: 0.042 * 28.9 };
 
-const ball = { x: 0, y: 0.0025 * 28.9, diameter: 0.005 * 28.9 };
+const ball = { x: 0, y: 0.0025 * 28.9, radius: 0.0025 * 28.9 };
 
 function draw() {
   /* here is the dynamic part to put */
+  newButton.position(canvasWidth * 0.8, canvasHeight * 0.9);
+  resetButton.position(canvasWidth * 0.1, canvasHeight * 0.9);
+
   /* administrative work */
   push();
   translate(canvasWidth * 0.9, canvasHeight * 0.7);
@@ -100,7 +101,7 @@ function draw() {
   // The ball
   push();
   fill("red");
-  ellipse(ball.x * M, ball.y * M, ball.diameter * M);
+  ellipse(ball.x * M, (ball.y / 2) * M, ball.radius * M);
   pop();
 
   // The golf stick
