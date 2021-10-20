@@ -3,26 +3,23 @@ var canvasWidth = window.innerWidth;
 var canvasHeight = window.innerHeight;
 let newButton;
 let resetButton;
+// Massstab
+let M;
+// set up the frame rate
+let fr = 50;
+// Our time axis
+let t;
+let dt;
+let moveBall = false;
 
 function setup() {
   /* here are program-essentials to put */
   createCanvas(windowWidth, windowHeight);
-  newButton = createButton("NEW");
-  newButton.style("background-color", "#6BE3F8");
-  newButton.style("width", "200px");
-  newButton.style("height", "70px");
-  newButton.style("border", "none");
-  newButton.style("cursor", "pointer");
-  newButton.style("letter-spacing", "1px");
-  newButton.style("font-weight", "bold");
-  resetButton = createButton("RESET");
-  resetButton.style("background-color", "#ED654A");
-  resetButton.style("height", "70px");
-  resetButton.style("border", "none");
-  resetButton.style("cursor", "pointer");
-  resetButton.style("letter-spacing", "1px");
-  resetButton.style("font-weight", "bold");
-  resetButton.style("width", "200px");
+  M = (0.7 * canvasWidth) / baseline;
+  // Declare the frame rate of our scene
+  frameRate(fr);
+  dt = 1 / fr;
+  t = 0;
 }
 
 const baseline = 5;
@@ -50,19 +47,20 @@ const corners = [
 const stickPosition = { x: -0.175 * 28.9, y: 0, length: 0.042 * 28.9 };
 
 const ball = { x: 0, y: 0.0025 * 28.9, radius: 0.0025 * 28.9 };
+const ballSpeed = 3.6;
 
 function draw() {
   /* here is the dynamic part to put */
-  newButton.position(canvasWidth * 0.8, canvasHeight * 0.9);
-  resetButton.position(canvasWidth * 0.1, canvasHeight * 0.9);
-
   /* administrative work */
   push();
   translate(canvasWidth * 0.9, canvasHeight * 0.7);
   scale(1, -1);
   /* calculations */
-  let M = (0.7 * canvasWidth) / baseline;
+  t = t + dt;
+  endPosition = -0.035;
+
   /* display */
+  background(200);
   // Water
   push();
   fill("#99CCFF");
@@ -100,6 +98,9 @@ function draw() {
 
   // The ball
   push();
+  if (ball.x > -0.035 * 28.9 && moveBall) {
+    ball.x = ball.x - 0.036 * M * t;
+  }
   fill("red");
   ellipse(ball.x * M, (ball.y / 2) * M, ball.radius * M);
   pop();
@@ -112,6 +113,54 @@ function draw() {
   line(0, 0, 0, 0.02 * 28.9 * M);
   pop();
   pop();
+
+  // The two Buttons
+  push();
+  fill("blue");
+  rect(canvasWidth * 0.8, canvasHeight * 0.9, 200, 70);
+  push();
+  translate(canvasWidth * 0.8 + 100, canvasHeight * 0.9 + 35);
+  rectMode(CENTER);
+  fill("white");
+  textSize(50);
+  text("NEW", -50, 20);
+  pop();
+  pop();
+
+  push();
+  fill("red");
+  rect(canvasWidth * 0.1, canvasHeight * 0.9, 200, 70);
+  push();
+  translate(canvasWidth * 0.1 + 100, canvasHeight * 0.9 + 35);
+  rectMode(CENTER);
+  fill("white");
+  textSize(50);
+  text("RESET", -80, 20);
+  pop();
+  pop();
+}
+
+function mousePressed() {
+  // if the mouse is on "reset button"
+  if (
+    mouseX > canvasWidth * 0.1 &&
+    mouseX < canvasWidth * 0.1 + 200 &&
+    mouseY > canvasHeight * 0.9 &&
+    mouseY < canvasHeight * 0.9 + 70
+  ) {
+    ball.x = 0;
+    t = 0;
+    moveBall = false;
+  }
+
+  if (
+    mouseX > canvasWidth * 0.8 &&
+    mouseX < canvasWidth * 0.8 + 200 &&
+    mouseY > canvasHeight * 0.9 &&
+    mouseY < canvasHeight * 0.9 + 70
+  ) {
+    moveBall = true;
+  }
 }
 
 function windowResized() {
