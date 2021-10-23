@@ -43,11 +43,10 @@ const corners = [
   [-0.066 * 28.9, 0.01 * 28.9, "green"],
   [-0.035 * 28.9, 0, "yellow"],
 ];
-
 const stickPosition = { x: -0.175 * 28.9, y: 0, length: 0.042 * 28.9 };
-
 const ball = { x: 0, y: 0.0025 * 28.9, radius: 0.0025 * 28.9 };
-const ballSpeed = 3.6;
+const buttonWidth = canvasWidth * 0.1;
+const buttonHeight = canvasHeight * 0.08;
 
 function draw() {
   /* here is the dynamic part to put */
@@ -58,6 +57,9 @@ function draw() {
   /* calculations */
   t = t + dt;
   endPosition = -0.035;
+  if (ball.x >= -0.033 * 28.9 && moveBall) {
+    ball.x = ball.x - 0.036 * t;
+  }
 
   /* display */
   background(200);
@@ -98,9 +100,6 @@ function draw() {
 
   // The ball
   push();
-  if (ball.x > -0.035 * 28.9 && moveBall) {
-    ball.x = ball.x - 0.036 * M * t;
-  }
   fill("red");
   ellipse(ball.x * M, (ball.y / 2) * M, ball.radius * M);
   pop();
@@ -114,28 +113,46 @@ function draw() {
   pop();
   pop();
 
-  // The two Buttons
+  // // The two Buttons
+  // push();
+  // fill("blue");
+  // rect(canvasWidth * 0.8, canvasHeight * 0.9, 200, 70);
+  // push();
+  // translate(canvasWidth * 0.8 + 100, canvasHeight * 0.9 + 35);
+  // rectMode(CENTER);
+  // fill("white");
+  // textSize(50);
+  // text("NEW", -50, 20);
+  // pop();
+  // pop();
+
   push();
   fill("blue");
-  rect(canvasWidth * 0.8, canvasHeight * 0.9, 200, 70);
+  rect(canvasWidth * 0.8, canvasHeight * 0.9, buttonWidth, buttonHeight);
   push();
-  translate(canvasWidth * 0.8 + 100, canvasHeight * 0.9 + 35);
+  translate(
+    canvasWidth * 0.8 + buttonWidth / 5,
+    canvasHeight * 0.9 + buttonHeight / 1.5
+  );
   rectMode(CENTER);
   fill("white");
-  textSize(50);
-  text("NEW", -50, 20);
+  textSize(buttonWidth / 4);
+  text("NEW", 0, 0);
   pop();
   pop();
 
   push();
   fill("red");
-  rect(canvasWidth * 0.1, canvasHeight * 0.9, 200, 70);
+  rect(canvasWidth * 0.1, canvasHeight * 0.9, buttonWidth, buttonHeight);
   push();
-  translate(canvasWidth * 0.1 + 100, canvasHeight * 0.9 + 35);
+  translate(
+    buttonWidth + buttonWidth / 10,
+    canvasHeight * 0.9 + buttonHeight / 1.5
+  );
   rectMode(CENTER);
   fill("white");
-  textSize(50);
-  text("RESET", -80, 20);
+  textSize(buttonWidth / 4);
+  text("RESET", 0, 0);
   pop();
   pop();
 }
