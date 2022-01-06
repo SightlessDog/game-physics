@@ -42,6 +42,8 @@ var P = [
   [-6.56, 0.9], // 9
 ];
 
+const stickPosition = { x: -0.185 * 28.9, y: 0, length: 0.042 * 28.9 };
+
 var beta = 0,
   beta_i = []; // Neigungswinkel, Neigungswinkel des i-ten der Geradenstücks
 var len = 0,
@@ -136,4 +138,36 @@ function drawZeroCross() {
     line(0, 10, 0, -10);
     pop();
   }
+}
+
+// TODO meine Lösung
+function generateWindSpeed() {
+  return (Math.random() * 40 - 15) / 3.6;
+}
+
+function drawGoalStick() {
+  push();
+  strokeWeight(4);
+  stroke("black");
+  line(
+    stickPosition.x * M,
+    stickPosition.y * M,
+    stickPosition.x * M,
+    stickPosition.length * M
+  );
+  pop();
+}
+
+function drawFlag(windS) {
+  push();
+  stroke("yellow");
+  triangle(
+    stickPosition.x * M,
+    stickPosition.length * M,
+    (stickPosition.x + windS * 0.08) * M,
+    (stickPosition.length - 0.1) * M,
+    stickPosition.x * M,
+    (stickPosition.length - 0.2) * M
+  );
+  pop();
 }

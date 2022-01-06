@@ -1,6 +1,6 @@
-/******************************* 7. Übung *******************************************/
-/* Autor: Dr.-Ing. V. Naumburger	                                                */
-/* Datum: 25.10.2021                                                                */
+/******************************* 11. Übung *******************************************/
+/* Autor: Elyess Eleuch	                                                */
+/* Datum: 04.01.2022                                                                */
 /************************************************************************************/
 
 /*************************** Variablendeklaration ***********************************/
@@ -23,10 +23,10 @@ var s = 0,
   vs = 0; // Weg, Weggeschwindigkeit
 
 var xBall, yBall; // Golfball
-var dBall = 0.1; // Balldurchmesser real: 3,2cm => 0.032m
+var dBall = 0.038; // Balldurchmesser real: 3,8cm => 0.038m
 var colorBall = "#aaaa00";
 var vxBall, vyBall; // Ballgeschwindigkeit
-var vx0Ball = -5.7; // Startgeschwindigkeit 300 km/h = 300/3,6 m/s
+var vx0Ball = -4.7; // Startgeschwindigkeit 300 km/h = 300/3,6 m/s
 var vy0Ball = 0;
 
 // -5 goes to water, 5.7 to the hole
@@ -53,6 +53,16 @@ var status = "start"; // state-machine
 
 var Putter, putter; // Schläger, Maus sensibel
 
+const lDichte = 1.3;
+const sBeiwert = 0.45;
+const mBall = 0.0025;
+const A = Math.PI * Math.pow(dBall / 2, 2);
+var windGenerated = false;
+let golfStick;
+
+// Wind speed
+let windS = 0;
+
 let success = 0;
 
 function setup() {
@@ -68,6 +78,7 @@ function setup() {
   timeScale = 1; //200/abs(vx0Ball*M);				// schnelle Bewegung
 
   // Objectdeclarations
+  golfStick = new Draggable(0, 0, 0, 0.7 * lengthPutter * M, dPutter * M);
   NewTrial = new PushButton(80, 90, "NEW", "#00ff00", true); // xPos, yPos, onName, onColor, modus
   Reset = new PushButton(10, 90, "Reset", "#ff0000", true);
   Debug = new ToggleButton(40, 90, "debug", "#00ff00", "run", "#ff0000"); //xPos, yPos, onName, onColor, offName, offColor
@@ -105,24 +116,18 @@ function draw() {
   push();
   textSize(2.5 * fontSize);
   textAlign(CENTER);
-  text("(6.) Das ultimative Golf-Spiel", 50 * gridX, 10 * gridY);
+  text("(10.) Das ultimative Golf-Spiel", 50 * gridX, 10 * gridY);
   textSize(fontSize);
   text("timeScale: " + timeScale, 50 * gridX, 12 * gridY);
   text("t: " + nf(t, 3, 2), 10 * gridX, 20 * gridY);
+  text("Number of wins: " + success, 10 * gridX, 24 * gridY);
   pop();
 
   newTrial = NewTrial.drawButton(true); // NewTrial-Button Darstellen und auswerten
   if (newTrial) {
-    newTrial = false; // Pushbutton
-    START = true;
-    INIT = true;
-    status = "start";
-  }
-
-  reset = Reset.drawButton(true);
-  if (reset) {
+    console.log("new trial");
     reset = false; // Pushbutton
-    START = true;
+    START = false;
     INIT = false;
     status = "start";
     t = 0;
@@ -130,6 +135,12 @@ function draw() {
     s = 0;
     xBall = 0; // Startlage Golfball
     yBall = dBall / 2;
+    windS = generateWindSpeed();
+  }
+
+  reset = Reset.drawButton(true);
+  if (reset.mousePressed) {
+    console.log("hello");
     /// NEW CHANGES
     success = 0;
   }
@@ -152,7 +163,6 @@ function draw() {
     );
     text("\u03b2: " + nf(beta, 3, 0), 14 * gridX, 26 * gridY);
   }
-
   /* calculation */
   if (START) {
     beta = PI; // Startwerte für Darstellung setzen
@@ -168,6 +178,8 @@ function draw() {
       yBall = dBall / 2;
       vxBall = vx0Ball; // Startgeschwindigkeit setzen
       vyBall = 0;
+      !windGenerated ? (windS = generateWindSpeed()) : null;
+      windGenerated = true;
     }
   } else {
     if (next || !debug) {
@@ -300,8 +312,8 @@ function draw() {
             dt = 0;
           }
           break;
-
         case "on flight":
+          dMin = 0;
           if (xBall < G[5][0] && xBall > G[8][0] && yBall < G[8][1]) {
             status = "water";
             s = 0; // Weg rücksetzen
@@ -314,6 +326,29 @@ function draw() {
             s = 0; // Weg rücksetzen
             xBall0 = P[3][0];
             dt = 0;
+          } else {
+            for (let i = 0; i < P.length - 1; i++) {
+              lPath =
+                (P[i][0] * (xBall - P[i][0]) + P[i][1] * (yBall - P[i][1])) /
+                Math.sqrt(Math.pow(P[i][0], 2) + Math.pow(P[i][1], 2));
+              d =
+                (P[i][0] * (yBall - P[i][1]) - P[i][1] * (xBall - P[i][0])) /
+                Math.sqrt(Math.pow(P[i][0], 2) + Math.pow(P[i][1], 2));
+              dMin < d ? (dMin = d) : null;
+              if (
+                lPath > 0 &&
+                lPath < Math.sqrt(Math.pow(P[i][0], 2) + Math.pow(P[i][1], 2))
+              ) {
+                iMin = i;
+                S = createVector(P[i][0], P[i][1]);
+                Pvec = S.div(
+                  Math.sqrt(Math.pow(P[i][0], 2) + Math.pow(P[i][1], 2))
+                ).mult(lPath);
+                if (d > -0.01 && d < 0.01) {
+                  console.log("hit");
+                }
+              }
+            }
           }
       }
 
@@ -330,11 +365,29 @@ function draw() {
           vs = vs + g_ * dt; // Wegberechnung für Rollbewegung
           s = s + vs * dt;
           xBall = xBall0 + s * cos(beta) - 0.5 * dBall * sin(beta);
-          yBall = s * sin(beta) - 0.5 * dBall * cos(beta);
+          //yBall = s * sin(beta) - 0.5 * dBall * cos(beta);
           yBall = s * sin(beta);
           break;
         case "on flight":
-          vyBall = vyBall + g_ * dt;
+          vyBall =
+            vyBall -
+            (-g +
+              (sBeiwert *
+                lDichte *
+                A *
+                Math.sqrt(Math.pow(vxBall, 2) + Math.pow(vyBall, 2)) *
+                vyBall) /
+                (2 * mBall)) *
+              dt;
+          vxBall =
+            vxBall -
+            ((sBeiwert *
+              lDichte *
+              A *
+              Math.sqrt(Math.pow(vxBall - windS, 2) + Math.pow(vxBall, 2)) *
+              (vxBall - windS)) /
+              (2 * mBall)) *
+              dt;
           yBall = yBall + vyBall * dt;
           xBall = xBall + vxBall * dt;
           break;
@@ -349,19 +402,20 @@ function draw() {
   translate(xi0, yi0);
   scale(1, -1);
   playGround(); // Playground darstellen
-
+  drawGoalStick();
+  drawFlag(windS);
   push(); // Golfer
-  translate(0, (lengthPutter + dPutter / 2) * M); // Verschieben in Drehpunkt
-  rotate(PI / 10);
+  translate(0.05 * M, (lengthPutter + dPutter / 2) * M); // Verschieben in Drehpunkt
+  rotate(0);
   noFill(); // Drehpunkt
   ellipse(0, 0, 0.05 * M);
   fill(colorPutter); // Golfschläger
   stroke(colorPutter);
   push();
   translate(0, -lengthPutter * M); // Verschieben aus dem Drehpunkt
-  ellipse(0, 0, dPutter * M);
-  strokeWeight(3);
-  line(0, 0, 0, 0.7 * lengthPutter * M); // Schlägerlänge reduziert
+  golfStick.over();
+  golfStick.update();
+  golfStick.show();
   pop();
   pop();
 
@@ -377,14 +431,14 @@ function draw() {
       break;
     case "water":
       push();
-      translate(((P[4][0] + P[5][0]) * M) / 2, (G[6][1] + 0.5 * dBall) * M);
+      translate(xBall * M, (G[6][1] + 0.5 * dBall) * M);
       ellipse(0, 0, dBall * M);
       pop();
       break;
     case "hole":
       push();
       fill(colorBall);
-      translate(((P[6][0] + P[7][0]) * M) / 2, (G[11][1] + 0.5 * dBall) * M);
+      translate(xBall * M, (G[11][1] + 0.5 * dBall) * M);
       ellipse(0, 0, dBall * M);
       pop();
       break;
@@ -401,6 +455,48 @@ function draw() {
 
   drawZeroCross(); // markiert den kartesischen Nullpunkt
   pop();
+}
+
+function mousePressed() {
+  golfStick.pressed();
+  if (
+    mouseX > 0.8 * canvasWidth &&
+    mouseX < 0.88 * canvasWidth &&
+    mouseY > 0.9 * canvasHeight &&
+    mouseY < 0.96 * canvasHeight
+  ) {
+    console.log("new trial");
+    reset = false; // Pushbutton
+    START = true;
+    INIT = false;
+    status = "start";
+    t = 0;
+    dt = 0;
+    s = 0;
+    xBall = 0; // Startlage Golfball
+    yBall = dBall / 2;
+    golfStick.dragged = false;
+    golfStick.initialized = false;
+    windS = generateWindSpeed();
+  } else if (
+    mouseX > 0.1 * canvasWidth &&
+    mouseX < 0.18 * canvasWidth &&
+    mouseY > 0.9 * canvasHeight &&
+    mouseY < 0.96 * canvasHeight
+  ) {
+    console.log("hello");
+    t = 0;
+    dt = 0;
+    s = 0;
+    xBall = 0; // Startlage Golfball
+    yBall = dBall / 2;
+    /// NEW CHANGES
+    success = 0;
+  }
+}
+
+function mouseReleased() {
+  golfStick.released();
 }
 
 function windowResized() {
