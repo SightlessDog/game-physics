@@ -24,8 +24,8 @@ class Draggable {
     if (
       mouseX > canvasWidth * 0.84 &&
       mouseX < canvasWidth * 0.85 &&
-      mouseY > 692 &&
-      mouseY < 714
+      mouseY > canvasHeight * 0.71 &&
+      mouseY < canvasHeight * 0.73
     ) {
       console.log("over");
       this.rollover = true;
@@ -77,8 +77,8 @@ class Draggable {
     if (
       mouseX > canvasWidth * 0.84 &&
       mouseX < canvasWidth * 0.85 &&
-      mouseY > 692 &&
-      mouseY < 714 &&
+      mouseY > canvasHeight * 0.71 &&
+      mouseY < canvasHeight * 0.73 && 
       !this.dragged
     ) {
       console.log("dragging");
