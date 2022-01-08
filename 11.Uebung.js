@@ -26,7 +26,7 @@ var xBall, yBall; // Golfball
 var dBall = 0.038; // Balldurchmesser real: 3,8cm => 0.038m
 var colorBall = "#aaaa00";
 var vxBall, vyBall; // Ballgeschwindigkeit
-var vx0Ball = -4.7; // Startgeschwindigkeit 300 km/h = 300/3,6 m/s
+var vx0Ball = -4.5; // Startgeschwindigkeit 300 km/h = 300/3,6 m/s
 var vy0Ball = 0;
 
 // -5 goes to water, 5.7 to the hole
@@ -116,7 +116,7 @@ function draw() {
   push();
   textSize(2.5 * fontSize);
   textAlign(CENTER);
-  text("(10.) Das ultimative Golf-Spiel", 50 * gridX, 10 * gridY);
+  text("(11.) Das ultimative Golf-Spiel", 50 * gridX, 10 * gridY);
   textSize(fontSize);
   text("timeScale: " + timeScale, 50 * gridX, 12 * gridY);
   text("t: " + nf(t, 3, 2), 10 * gridX, 20 * gridY);
@@ -328,24 +328,28 @@ function draw() {
             dt = 0;
           } else {
             for (let i = 0; i < P.length - 1; i++) {
-              lPath =
-                (P[i][0] * (xBall - P[i][0]) + P[i][1] * (yBall - P[i][1])) /
-                Math.sqrt(Math.pow(P[i][0], 2) + Math.pow(P[i][1], 2));
-              d =
-                (P[i][0] * (yBall - P[i][1]) - P[i][1] * (xBall - P[i][0])) /
-                Math.sqrt(Math.pow(P[i][0], 2) + Math.pow(P[i][1], 2));
-              dMin < d ? (dMin = d) : null;
+              S = createVector(P[i + 1][0] - P[i][0] ,P[i + 1][1] - P[i][1]);
+              O = createVector(xBall - P[i][0], yBall - P[i][1])
+              lPath = S.dot(O)/(S.mag());
+              d = S.cross(O).mag() / S.mag()
               if (
                 lPath > 0 &&
-                lPath < Math.sqrt(Math.pow(P[i][0], 2) + Math.pow(P[i][1], 2))
+                lPath < Math.sqrt(Math.pow(P[i][0] - P[i + 1][0], 2) + Math.pow(P[i][1] - P[i + 1][1], 2))
               ) {
                 iMin = i;
                 S = createVector(P[i][0], P[i][1]);
                 Pvec = S.div(
                   Math.sqrt(Math.pow(P[i][0], 2) + Math.pow(P[i][1], 2))
                 ).mult(lPath);
-                if (d > -0.01 && d < 0.01) {
-                  console.log("hit");
+                if (d < dBall ) {
+                  hitAngle = Math.atan(yBall - P[i][1], xBall - P[i][0])
+                  dist = Math.sqrt(Math.pow(xBall- P[i][0], 2) + Math.pow(yBall - P[i][1], 2))
+                  console.log("i is ", i)
+                  console.log("Winkel ", hitAngle)
+                  console.log("Abstand ", dist)
+                  console.log("hit")
+                  s = 0; 
+                  dt = 0;
                 }
               }
             }
