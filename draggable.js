@@ -11,8 +11,8 @@ class Draggable {
     this.offsetY = 0;
     this.dragged = false;
     this.m = 1; // 1kg
-    this.federKons = 40; //40N/m
-    this.daempfung = 4; // s-1
+    this.federKons = 20; //40N/m
+    this.daempfung = 6; // s-1
     this.stickV = 0;
     this.stickS = x;
     this.hitTheBall = false;
@@ -22,10 +22,10 @@ class Draggable {
   over() {
     // Is mouse over object
     if (
-      mouseX > canvasWidth * 0.84 &&
-      mouseX < canvasWidth * 0.85 &&
-      mouseY > canvasHeight * 0.71 &&
-      mouseY < canvasHeight * 0.73
+      mouseX > this.stickS + xi0 - dPutter * M / 2 &&
+      mouseX < this.stickS + xi0 +2 +  dPutter * M / 2 &&
+      mouseY> this.y + yi0 - 4 * dPutter * M / 2 &&
+      mouseY < this.y + yi0 - dPutter * M / 2
     ) {
       console.log("over");
       this.rollover = true;
@@ -75,10 +75,10 @@ class Draggable {
     // Did I click on the rectangle?
     console.log(this.dragged);
     if (
-      mouseX > canvasWidth * 0.84 &&
-      mouseX < canvasWidth * 0.85 &&
-      mouseY > canvasHeight * 0.71 &&
-      mouseY < canvasHeight * 0.73 && 
+      mouseX > this.stickS + xi0 - dPutter * M / 2 &&
+      mouseX < this.stickS + xi0 +2 +  dPutter * M / 2 &&
+      mouseY> this.y + yi0 - 4 * dPutter * M / 2 &&
+      mouseY < this.y + yi0 - dPutter * M / 2 &&
       !this.dragged
     ) {
       console.log("dragging");
