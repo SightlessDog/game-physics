@@ -23,7 +23,7 @@ var s = 0,
   vs = 0; // Weg, Weggeschwindigkeit
 
 var xBall, yBall; // Golfball
-var dBall = 0.038; // Balldurchmesser real: 3,8cm => 0.038m
+var dBall = 0.084; // Balldurchmesser real: 3,8cm => 0.038m
 var colorBall = "#aaaa00";
 var vxBall, vyBall; // Ballgeschwindigkeit
 var vx0Ball = -4.3; // Startgeschwindigkeit 300 km/h = 300/3,6 m/s
@@ -55,7 +55,7 @@ var Putter, putter; // Schläger, Maus sensibel
 
 const lDichte = 1.3;
 const sBeiwert = 0.45;
-const mBall = 0.0025;
+const mBall = 0.0459;
 const A = Math.PI * Math.pow(dBall / 2, 2);
 var windGenerated = false;
 let golfStick;
@@ -176,8 +176,8 @@ function draw() {
       dt = timeScale / frmRate; // Zeitincrement
       xBall = 0; // Startlage Golfball
       yBall = dBall / 2;
-      vxBall = golfStick.stickV/100; // Startgeschwindigkeit setzen
-      console.log(vxBall)
+      vxBall = golfStick.stickV / 100; // Startgeschwindigkeit setzen
+      console.log(vxBall);
       vyBall = 0;
       !windGenerated ? (windS = generateWindSpeed()) : null;
       windGenerated = true;
@@ -313,6 +313,7 @@ function draw() {
             dt = 0;
           }
           break;
+
         case "on flight":
           dMin = 0;
           if (xBall < G[5][0] && xBall > G[8][0] && yBall < G[8][1]) {
@@ -329,31 +330,57 @@ function draw() {
             dt = 0;
           } else {
             for (let i = 0; i < P.length - 1; i++) {
-              S = createVector(P[i + 1][0] - P[i][0] ,P[i + 1][1] - P[i][1]);
-              O = createVector(xBall - P[i][0], yBall - P[i][1])
-              lPath = S.dot(O)/(S.mag());
-              d = S.cross(O).mag() / S.mag()
+              S = createVector(P[i + 1][0] - P[i][0], P[i + 1][1] - P[i][1]);
+              O = createVector(xBall - P[i][0], yBall - P[i][1]);
+              lPath = S.dot(O) / S.mag();
+              d = S.cross(O).mag() / S.mag();
               if (
                 lPath > 0 &&
-                lPath < Math.sqrt(Math.pow(P[i][0] - P[i + 1][0], 2) + Math.pow(P[i][1] - P[i + 1][1], 2))
+                lPath <
+                  Math.sqrt(
+                    Math.pow(P[i][0] - P[i + 1][0], 2) +
+                      Math.pow(P[i][1] - P[i + 1][1], 2)
+                  )
               ) {
                 S = createVector(P[i][0], P[i][1]);
                 Pvec = S.div(
                   Math.sqrt(Math.pow(P[i][0], 2) + Math.pow(P[i][1], 2))
                 ).mult(lPath);
-                if (d < dBall/2 ) {
-                  let hitAngle = Math.atan(yBall - P[i][1], xBall - P[i][0])
-                  let dist = Math.sqrt(Math.pow(xBall- P[i][0], 2) + Math.pow(yBall - P[i][1], 2))
-                  console.log("i is ", i)
-                  console.log("Winkel ", hitAngle)
-                  console.log("Abstand ", dist)
-                  console.log("hit")
-                  s = 0; 
-                  dt = 0;
+                iMin = i;
+                if (d < dBall / 2) {
+                  beta = beta_i[iMin];
+                  status = segmentToStatus[iMin];
+                  console.log("Status is ", status);
+                  var v_parallel = rotCoordSystem(vxBall, vyBall, beta)[0];
+                  var v_normal = -rotCoordSystem(vxBall, vyBall, beta)[1];
+                  let distError = dMin - 0.5 * dBall;
+                  let dtCorr = Math.abs(distError / v_normal);
+                  xBall = xBall - vxBall * dtCorr;
+                  yBall = yBall - vyBall * dtCorr;
+                  if (
+                    Math.abs(v_normal) > 0.5 &&
+                    status != "water" &&
+                    status != "hole"
+                  ) {
+                    // v_parallel = (1 / g_) * v_parallel;
+                    // v_normal = (1 / g_) * v_normal;
+                    vxBall = rotCoordSystem(v_parallel, v_normal, -beta)[0];
+                    vyBall = rotCoordSystem(v_parallel, v_normal, beta)[1];
+                    status = "on flight";
+                    console.log("Ball is bouncing with ", vxBall, " ", vyBall);
+                  } else {
+                    vs = v_parallel;
+                    g_ = g_i[iMin];
+                    len = len_i[iMin];
+                    Point = P[iMin];
+                    xBall0 = P[iMin][0];
+                    console.log("Ball rolling ");
+                  }
                 }
               }
             }
           }
+          break;
       }
 
       switch (

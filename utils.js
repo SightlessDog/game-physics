@@ -42,6 +42,18 @@ var P = [
   [-6.56, 0.9], // 9
 ];
 
+var segmentToStatus = [
+  "1.plane",
+  "1.slope",
+  "2.slope",
+  "2.plane",
+  "water",
+  "3.plane",
+  "hole",
+  "4.plane",
+  "3.slope",
+];
+
 const stickPosition = { x: -0.185 * 28.9, y: 0, length: 0.042 * 28.9 };
 
 var beta = 0,
@@ -73,6 +85,12 @@ function ballOnSlope(s, len, beta, Point) {
     ellipse(xBall * M, (G[0][1] - dBall) * M, dBall * M); // Projektion des Balls auf die x-Achse
     pop();
   }
+}
+
+function rotCoordSystem(x, y, phi) {
+  var u = x * cos(phi) + y * sin(phi); // tangentiale K.
+  var v = -x * sin(phi) + y * cos(phi); // zentrale K.
+  return [u, v];
 }
 
 function ballFlying(x, y, beta, Point) {
@@ -140,9 +158,8 @@ function drawZeroCross() {
   }
 }
 
-// TODO meine Lösung
 function generateWindSpeed() {
-  return (Math.random() * 40 - 15) / 3.6;
+  return (Math.random() * 100 - 50) / 3.6;
 }
 
 function drawGoalStick() {
