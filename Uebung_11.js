@@ -365,7 +365,38 @@ function draw() {
 														xBall0 = P[3][0];
 														dt = 0;
 													}
-												break;	
+												break;
+												
+							case "3.plane":		if (len_i[4] < s && len_i[5] > s)
+							{	// Ortsberechnung
+								console.log("3RD PLANE")
+								beta = beta_i[5];
+								//console.log("2.plane");		
+							}
+						else
+							{	// Ende im Wasser
+								console.log("under 3 plane and else statement")
+								s = 0;							// Weg rücksetzen
+								xBall0 = P[5][0];
+								dt = 0;
+							}
+						break;
+							
+							case "4.plane":		if (len_i[6] < s && len_i[7] > s)
+												{	// Ortsberechnung
+													console.log("4 plane")
+													s = s + vs*dt;
+																	// wirksame Reibungsverzögerung
+													
+												} else { 
+													console.log("4th plane and else statement")
+													xBall0 = xBall
+													yBall = yBall
+													s = 0;
+													dt = 0;
+												}
+											
+											break;	
 							case "on flight":
 												dMin = 100;
 												iMin = 0;
@@ -390,7 +421,37 @@ function draw() {
 														aRR = aRR_i[iMin];							// wirksame Reibungsverzögerung
 														xBall0 = P[iMin][0];
 														Point = P[iMin];
-														dt = 0;
+														status = segmentToStatus[iMin];
+														var v_parallel = rotCoordSystem(vxBall, vyBall, beta)[0];
+														var v_normal = -rotCoordSystem(vxBall, vyBall, beta)[1];
+
+let distError = dMin - 0.5 * dBall;
+let dtCorr = Math.abs(distError / v_normal);
+xBall = xBall - vxBall * dtCorr;
+yBall = yBall - vyBall * dtCorr;
+if (
+Math.abs(v_normal) > 0.5 &&
+status != "water" &&
+status != "hole"
+) {
+v_parallel = 0.5 * v_parallel;
+v_normal = 0.5 * v_normal;
+vxBall = rotCoordSystem(v_parallel, v_normal, -beta)[0];
+vyBall = rotCoordSystem(v_parallel, v_normal, beta)[1];
+status = "on flight";
+console.log("Ball is bouncing with ", vxBall, " ", vyBall);
+} else {
+vs = v_parallel;
+g_ = g_i[iMin];
+len = len_i[iMin];
+aRR = aRR_i[iMin];	
+Point = P[iMin];
+xBall0 = P[iMin][0];
+console.log("Ball rolling ");
+//console.log("status is ", status)
+}
+
+														//dt = 0;
 													}
 												//console.log(iMin+" d:"+nf(dMin,2,4)+" status: "+segmentToStatus[iMin]+"  l: "+len);
 												break;					
